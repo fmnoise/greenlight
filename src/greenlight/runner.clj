@@ -177,7 +177,9 @@
                (str "Invalid test suite configuration: "
                      (s/explain-str ::test/suite tests)))))
      (println "Starting test system...")
-     (let [system (component/start (new-system))]
+     (let [start-system (::start-system-fn options component/start)
+           stop-system (::stop-system-fn options component/stop)
+           system (start-system (new-system))]
        (try
          (binding [test/*report* (partial report/handle-test-event
                                           {:print-color (not (:no-color options))})]
@@ -197,7 +199,7 @@
              ; Successful if every test passed.
              (every? (comp #{:pass} ::test/outcome) results)))
          (finally
-           (component/stop system)))))))
+           (stop-system system)))))))
 
 
 (defn run-all-tests!
